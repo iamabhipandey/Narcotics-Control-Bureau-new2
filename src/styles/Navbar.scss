@@ -1628,6 +1628,43 @@ body.sidebar-open {
                 font-size: 14px;
             }
         }
+
+        @media (max-width: 767px) {
+            position: fixed !important;
+            top: 96px !important;
+            bottom: auto !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            transform: none !important;
+            /* Position it right below the branding area */
+            margin-top: 15px !important;
+            background: #051221 !important;
+            border-radius: 0 !important;
+            border: none !important;
+            border-bottom: 3px solid var(--theme-accent) !important;
+            padding: 15px 20px !important;
+            z-index: 9999 !important;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8) !important;
+            display: flex !important;
+
+            .search-input-field-mini {
+                font-size: 18px !important;
+            }
+        }
+    }
+}
+
+@keyframes slideDownSearch {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
