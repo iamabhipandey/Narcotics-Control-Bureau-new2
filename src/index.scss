@@ -7,9 +7,17 @@
   --theme-primary-rgb: 30, 91, 163;
   --theme-navy: #071a36;
   --theme-navy-rgb: 7, 26, 54;
-  --theme-accent: #38bdf8;
-  --theme-accent-rgb: 56, 189, 248;
+  --theme-accent: #fca311;
+  --theme-accent-rgb: 252, 163, 17;
   --theme-secondary-bg: #f8fafc;
+  
+  /* Header Specific (Dark Theme by Default) */
+  --header-bg: #051221;
+  --utility-bg: #051221;
+  --utility-text: #ffffff;
+  --branding-bg: #051221;
+  --nav-bg: #0b1a2e;
+  --nav-text: #ffffff;
 
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -27,6 +35,18 @@
   --theme-navy-rgb: 10, 61, 60;
   --theme-accent: #26aba9;
   --theme-accent-rgb: 38, 171, 169;
+  
+  --branding-bg: #0a3d3c;
+}
+
+[data-theme='hard'] {
+  /* Only Header specific variables for Hard Theme */
+  --header-bg: #051221;
+  --utility-bg: #051221;
+  --utility-text: #ffffff;
+  --branding-bg: #051221;
+  --nav-bg: #0b1a2e;
+  --nav-text: #ffffff;
 }
 
 body {
@@ -92,10 +112,9 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: $white;
-  color: $text-main;
+  background-color: #ffffff !important;
+  color: #0f172a;
   overflow-x: clip;
-  /* Prevent horizontal scroll while maintaining sticky */
 }
 
 a {
