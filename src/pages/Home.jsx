@@ -110,7 +110,9 @@ const Counter = ({ target, duration = 4000, suffix = "" }) => {
             ([entry]) => {
                 if (entry.isIntersecting) {
                     setIsVisible(true);
-                    observer.disconnect();
+                } else {
+                    setIsVisible(false); // Reset when leaving view
+                    setCount(0);
                 }
             },
             { threshold: 0.1 }
@@ -154,10 +156,44 @@ const Counter = ({ target, duration = 4000, suffix = "" }) => {
 function Home() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
+    const [isTransitioning, setIsTransitioning] = useState(true);
+
+    const extendedSlides = [...slides, slides[0]];
+
+    const nextSlide = useCallback(() => {
+        if (!isTransitioning && currentIndex === slides.length) return;
+        setIsTransitioning(true);
+        setCurrentIndex((prevIndex) => prevIndex + 1);
+    }, [isTransitioning, currentIndex]);
+
+    const prevSlide = () => {
+        if (currentIndex === 0) {
+            setIsTransitioning(false);
+            setCurrentIndex(slides.length);
+            setTimeout(() => {
+                setIsTransitioning(true);
+                setCurrentIndex(slides.length - 1);
+            }, 10);
+        } else {
+            setIsTransitioning(true);
+            setCurrentIndex((prevIndex) => prevIndex - 1);
+        }
+    };
+
+    useEffect(() => {
+        if (currentIndex === slides.length) {
+            const timer = setTimeout(() => {
+                setIsTransitioning(false);
+                setCurrentIndex(0);
+            }, 1200); // Match CSS transition duration
+            return () => clearTimeout(timer);
+        }
+    }, [currentIndex]);
     const [isTickerPaused, setIsTickerPaused] = useState(false);
 
     const [activeOfferTab, setActiveOfferTab] = useState("Most Wanted");
     const [isNewsPlaying, setIsNewsPlaying] = useState(true);
+    const [isUpdatesPlaying, setIsUpdatesPlaying] = useState(true);
     const [isPressPlaying, setIsPressPlaying] = useState(true);
     const [isActivityPlaying, setIsActivityPlaying] = useState(true);
 
@@ -236,6 +272,17 @@ function Home() {
         setNewsIndex((prev) => (prev >= newsUpdates.length - cardsToShow ? 0 : prev + 1));
     };
 
+    // Auto-slide for Latest Updates
+    useEffect(() => {
+        let interval;
+        if (isUpdatesPlaying) {
+            interval = setInterval(() => {
+                handleNextNews();
+            }, 5000);
+        }
+        return () => clearInterval(interval);
+    }, [isUpdatesPlaying, cardsToShow, newsUpdates.length]);
+
     // Enforcement Dashboard Data - Multi-Drug Timeline Analysis
     const drugArrestData = {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
@@ -264,31 +311,31 @@ function Home() {
                 label: 'Cocaine',
                 data: [150, 280, 210, 390, 250, 420, 310, 380],
                 fill: true,
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                borderColor: '#6366f1',
+                backgroundColor: 'rgba(59, 130, 246, 0.15)', // Blue
+                borderColor: '#3b82f6',
                 tension: 0.4,
-                pointRadius: 3,
-                borderWidth: 2,
+                pointRadius: 4,
+                borderWidth: 3,
             },
             {
                 label: 'Opium',
                 data: [320, 450, 380, 510, 420, 630, 480, 590],
                 fill: true,
-                backgroundColor: 'rgba(165, 180, 252, 0.1)',
-                borderColor: '#a5b4fc',
+                backgroundColor: 'rgba(6, 182, 212, 0.15)', // Cyan
+                borderColor: '#06b6d4',
                 tension: 0.4,
-                pointRadius: 3,
-                borderWidth: 2,
+                pointRadius: 4,
+                borderWidth: 3,
             },
             {
                 label: 'Synthetic',
                 data: [280, 520, 410, 680, 450, 790, 520, 710],
                 fill: true,
-                backgroundColor: 'rgba(199, 210, 254, 0.1)',
-                borderColor: '#c7d2fe',
+                backgroundColor: 'rgba(99, 102, 241, 0.15)', // Indigo
+                borderColor: '#6366f1',
                 tension: 0.4,
-                pointRadius: 3,
-                borderWidth: 2,
+                pointRadius: 4,
+                borderWidth: 3,
             }
         ],
     };
@@ -305,8 +352,8 @@ function Home() {
                     usePointStyle: true,
                     pointStyle: 'circle',
                     padding: 20,
-                    color: '#475569',
-                    font: { size: 12, weight: '600' }
+                    color: '#cbd5e1',
+                    font: { size: 12, weight: '600', family: "'Inter', sans-serif" }
                 }
             },
             tooltip: {
@@ -326,7 +373,7 @@ function Home() {
             y: {
                 beginAtZero: true,
                 border: { display: false },
-                grid: { color: '#f1f5f9' },
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
                 ticks: {
                     color: '#94a3b8',
                     padding: 10,
@@ -364,16 +411,16 @@ function Home() {
             {
                 data: [45, 30, 15, 10],
                 backgroundColor: [
-                    '#4338ca', // Deep Navy
+                    '#3b82f6', // Blue
+                    '#06b6d4', // Cyan
                     '#6366f1', // Indigo
-                    '#818cf8', // Medium Blue
-                    '#c7d2fe', // Light Blue
+                    '#4ade80', // Green
                 ],
                 hoverBackgroundColor: [
-                    '#3730a3',
+                    '#2563eb',
+                    '#0891b2',
                     '#4f46e5',
-                    '#6366f1',
-                    '#a5b4fc',
+                    '#22c55e',
                 ],
                 borderWidth: 2,
                 borderColor: '#ffffff',
@@ -392,8 +439,8 @@ function Home() {
                     usePointStyle: true,
                     pointStyle: 'circle',
                     padding: 20,
-                    color: '#475569',
-                    font: { size: 12, weight: '500' }
+                    color: '#cbd5e1',
+                    font: { size: 12, weight: '500', family: "'Inter', sans-serif" }
                 }
             },
             tooltip: {
@@ -548,13 +595,7 @@ function Home() {
         setIsPortalsDragging(false);
     };
 
-    const nextSlide = useCallback(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
-    }, []);
 
-    const prevSlide = () => {
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + slides.length) % slides.length);
-    };
 
     useEffect(() => {
         document.title = "Home | Narcotics Control Bureau, Government of India";
@@ -654,16 +695,20 @@ function Home() {
 
     return (
         <div className="home-container">
-            {/* Hero Slider Section */}
+            {/* Hero Slider Section - Immersive Redesign */}
             <section className="hero-slider" aria-label="Hero Image Slider">
-                <div className="slider-track"
-                    style={{ "--current-slide": currentIndex }} >
-                    {slides.map((slide) => (
-                        <div key={slide.id} className="slide">
-                            {/* Blurred Background Layer to fill space */}
+                <div className="slider-track" style={{
+                    transform: `translateX(-${currentIndex * 100}%)`,
+                    transition: isTransitioning ? "transform 1.2s cubic-bezier(0.7, 0, 0.3, 1)" : "none"
+                }}>
+                    {extendedSlides.map((slide, index) => (
+                        <div key={`${slide.id}-${index}`} className={`slide ${index === (currentIndex % slides.length) ? "active" : ""}`}>
+                            {/* Background Layers */}
                             <div className="slide-bg-blur">
                                 <img src={slide.image} alt="" aria-hidden="true" />
                             </div>
+                            <div className="slide-overlay-gradient"></div>
+
                             <div className="slide-image-container">
                                 <img src={slide.image} alt={slide.title} className="foreground-img" />
                             </div>
@@ -671,50 +716,56 @@ function Home() {
                     ))}
                 </div>
 
-                {/* Slider Navigation Controls - Matching Screenshot (Black blocks) */}
-                <button
-                    className="slider-control prev-btn"
-                    onClick={prevSlide}
-                    aria-label="Previous Slide" >
-                    <i className="bi bi-chevron-left"></i>
-                </button>
-                <button
-                    className="slider-control next-btn"
-                    onClick={nextSlide}
-                    aria-label="Next Slide" >
-                    <i className="bi bi-chevron-right"></i>
-                </button>
-
-                {/* Dot Indicators & Play/Pause - Positioned Right bottom as in screenshot */}
-                <div className="slider-utility-row">
-                    <div className="slider-dots">
-                        {slides.map((_, index) => (
-                            <button
-                                key={index}
-                                className={`dot ${index === currentIndex ? "active" : ""}`}
-                                onClick={() => setCurrentIndex(index)}
-                                aria-label={`Go to slide ${index + 1}`}
-                                aria-current={index === currentIndex ? "true" : "false"}
-                            />
-                        ))}
+                {/* Modern Navigation Controls */}
+                <div className="slider-nav-container">
+                    <div className="slider-nav-inner">
+                        <button className="slider-nav-btn prev" onClick={prevSlide} aria-label="Previous Slide">
+                            <i className="bi bi-chevron-left"></i>
+                        </button>
+                        <div className="nav-divider"></div>
+                        <button className="slider-nav-btn next" onClick={nextSlide} aria-label="Next Slide">
+                            <i className="bi bi-chevron-right"></i>
+                        </button>
                     </div>
-                    <button className={`slider-play-pause ${isPlaying ? "playing" : "paused"}`}
-                        onClick={togglePlay}
-                        aria-label={isPlaying ? "Pause Slideshow" : "Play Slideshow"}
-                    >
+                </div>
+
+                {/* Progress & Status Utility Row */}
+                <div className="slider-status-bar">
+                    <div className="slide-counter">
+                        <span className="current">0{(currentIndex % slides.length) + 1}</span>
+                        <span className="separator">/</span>
+                        <span className="total">0{slides.length}</span>
+                    </div>
+
+                    <div className="progress-container">
+                        <div className="progress-bar-track">
+                            <div
+                                className={`progress-bar-fill ${isPlaying ? "animating" : ""}`}
+                                style={{
+                                    animationDuration: isPlaying ? "5000ms" : "0s",
+                                    width: isPlaying ? "" : `${(((currentIndex % slides.length) + 1) / slides.length) * 100}%`
+                                }}
+                                key={(currentIndex % slides.length) + isPlaying}
+                            ></div>
+                        </div>
+                    </div>
+
+                    <button className={`status-play-pause ${isPlaying ? "playing" : "paused"}`} onClick={togglePlay}>
                         {isPlaying ? <i className="bi bi-pause-fill"></i> : <i className="bi bi-play-fill"></i>}
                     </button>
                 </div>
+
+
             </section>
 
-            <section className="meity-announcement-ticker">
-                <div className="container ticker-flex" data-aos="fade-up" data-aos-duration="2000">
+            <section className="alerts-ticker-section">
+                <div className="container-fluid ticker-flex" >
                     <div className="ticker-label">
-                        Announcements
+                        <i className="bi bi-exclamation-triangle-fill"></i> Alerts
                     </div>
                     <div className="ticker-scroll-field">
                         <div className={`ticker-track ${isTickerPaused ? "paused" : ""}`}>
-                            <p><strong>Latest Update:</strong> Submission of Expression of Interest (EoI) for Transfer of Technology (ToT) under the <strong>Ministry of Electronics and Information Technology</strong> programs. <span className="sep">|</span> <strong>Narcotics Control Bureau:</strong> Commitment to a <strong>Drug-Free India</strong> through multi-agency coordination (NCORD). <span className="sep">|</span> <strong>Help Desk Numbers:</strong> 011-26761000, 26761144.</p>
+                            <p><strong>Latest Alert:</strong> Submission of Expression of Interest (EoI) for Transfer of Technology (ToT) under the <strong>Ministry of Electronics and Information Technology</strong> programs. <span className="sep">|</span> <strong>Narcotics Control Bureau:</strong> Commitment to a <strong>Drug-Free India</strong> through multi-agency coordination (NCORD). <span className="sep">|</span> <strong>Help Desk Numbers:</strong> 011-26761000, 26761144.</p>
                         </div>
                     </div>
                     <button className="ticker-action-btn" aria-label={isTickerPaused ? "Play" : "Pause"} onClick={() => setIsTickerPaused(!isTickerPaused)}>
@@ -777,7 +828,6 @@ function Home() {
             <section className="ncb-live-enforcement-section dark-mode" ref={enforcementRef}>
                 <div className="container" data-aos="fade-up" data-aos-duration="2000">
                     <div className="perfect-section-header dark">
-                        <span className="live-pulse-dot"></span>
                         <h2 className="gateway-title text-white">Live <span className="text-accent">Enforcement Analytics</span></h2>
                     </div>
 
@@ -937,53 +987,12 @@ function Home() {
             </div>
         </section> */}
 
-            <section className="ncb-values-section">
-                <div className="container" data-aos="fade-up" data-aos-duration="2000">
-                    <div className="values-grid">
-                        <div className="values-left-col">
-                            <div className="value-card horizontal">
-                                <div className="value-icon-box">
-                                    <i className="bi bi-rocket-takeoff-fill"></i>
-                                </div>
-                                <div className="value-content">
-                                    <h3>Our Mission</h3>
-                                    <p>Prevent and combat abuse and illicit traffic of drugs through strategic enforcement and multi-agency coordination.</p>
-                                </div>
-                            </div>
 
-                            {/* Vision Card */}
-                            <div className="value-card horizontal">
-                                <div className="value-icon-box">
-                                    <i className="bi bi-eye-fill"></i>
-                                </div>
-                                <div className="value-content">
-                                    <h3>Vision</h3>
-                                    <p>To endeavour for a drug free society and protect the nation from the menace of narcotics.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Right Column: Motto/Goal */}
-                        <div className="values-right-col">
-                            <div className="value-card vertical">
-                                <div className="value-icon-box">
-                                    <i className="bi bi-shield-check"></i>
-                                </div>
-                                <div className="value-content">
-                                    <h3>Our Motto</h3>
-                                    <p>Intelligence, Enforcement, Coordination.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Motto, Mission & Vision Section - IMMERSIVE REDESIGN (COMMENTED OUT FOR FUTURE USE)
+            {/* Motto, Mission & Vision Section - IMMERSIVE REDESIGN (ACTIVATED) */}
             <section className="ncb-values-section-dark">
                 <div className="blob blob-1"></div>
                 <div className="blob blob-2"></div>
-                
+
                 <div className="container">
                     <div className="values-grid">
                         <div className="value-card">
@@ -1021,14 +1030,14 @@ function Home() {
                     </div>
                 </div>
             </section>
-            */}
             {/* Key Offerings & What's New Section - MeitY / CDAC Exact Design */}
             <section className="key-offerings-news-section dark-mode">
                 <div className="container-fluid" data-aos="fade-up" data-aos-duration="2000">
                     <div className="row offerings-news-grid">
                         {/* Left Side: Key Offerings with Tabs */}
                         <div className="col-lg-8 mb-4">
-                            <div className="key-offerings-column">
+                            <div className="key-offerings-column position-relative">
+
                                 <div className="offering-header-flex">
                                     <i className="bi bi-clipboard2-check offering-main-icon"></i>
                                     <h2>Digital Initiatives</h2>
@@ -1156,9 +1165,9 @@ function Home() {
                             </div>
                         </div>
 
-                        {/* Right Side: What's New Box */}
-                        <div className="col-lg-4">
-                            <div className="whats-new-column">
+                        <div className="col-lg-4 mb-4">
+                            <div className="whats-new-column position-relative">
+
                                 <div className="offering-header-flex">
                                     <i className="bi bi-stars offering-main-icon"></i>
                                     <h2>Recent Highlights</h2>
@@ -1221,31 +1230,27 @@ function Home() {
 
             <section className="latest-updates-section">
                 <div className="container" data-aos="fade-up" data-aos-duration="2000">
-                    <div className="updates-header">
-                        <div className="header-title">
-                            <h2 className="main-title"><span className="text-navy">Latest</span> Updates</h2>
-                        </div>
+                    <div className="perfect-section-header has-button">
+                        <h2 className="gateway-title">Latest <span>Updates</span></h2>
                         <div className="header-controls">
-                            <div className="nav-arrows">
-                                <button
-                                    className="nav-arrow-btn"
-                                    aria-label="Previous Update"
-                                    onClick={handlePrevNews}
-                                >
-                                    <i className="bi bi-chevron-left"></i>
-                                </button>
-                                <button
-                                    className="nav-arrow-btn"
-                                    aria-label="Next Update"
-                                    onClick={handleNextNews}
-                                >
-                                    <i className="bi bi-chevron-right"></i>
-                                </button>
-                            </div>
+                            <button className="play-pause-circle-btn" onClick={() => setIsUpdatesPlaying(!isUpdatesPlaying)} title={isUpdatesPlaying ? "Pause" : "Play"}>
+                                {isUpdatesPlaying ? <i className="bi bi-pause-fill"></i> : <i className="bi bi-play-fill"></i>}
+                            </button>
+                            <Link to="/media/latest-news" className="header-action-btn">
+                                VIEW ALL UPDATES <i className="bi bi-arrow-right"></i>
+                            </Link>
                         </div>
                     </div>
 
-                    <div className="updates-carousel-container">
+                    <div className="updates-carousel-container position-relative">
+                        {/* Navigation Arrows - Vertically Centered on Sides */}
+                        <button className="carousel-side-nav prev" onClick={handlePrevNews} aria-label="Previous update">
+                            <i className="bi bi-chevron-left"></i>
+                        </button>
+                        <button className="carousel-side-nav next" onClick={handleNextNews} aria-label="Next update">
+                            <i className="bi bi-chevron-right"></i>
+                        </button>
+
                         <div
                             className="updates-grid"
                             style={{ transform: `translateX(-${newsIndex * (100 / cardsToShow)}%)` }}
@@ -1272,11 +1277,6 @@ function Home() {
                         </div>
                     </div>
 
-                    <div className="updates-footer">
-                        <Link to="/media/latest-news" className="see-more-footer-link">
-                            <i className="bi bi-arrow-right-circle"></i> See More
-                        </Link>
-                    </div>
                 </div>
             </section>
 
@@ -1286,7 +1286,6 @@ function Home() {
             <section className="social-media-section">
                 <div className="container" data-aos="fade-up" data-aos-duration="2000">
                     <div className="perfect-section-header">
-                        <span className="live-pulse-dot"></span>
                         <h2 className="gateway-title">Social <span>Media</span></h2>
                         <div className="social-nav-controls">
                             <button className="social-nav-btn prev" onClick={handleSocialPrev} aria-label="Previous social card">
@@ -1520,7 +1519,6 @@ function Home() {
             <section className="portals-slider-section">
                 <div className="container" data-aos="fade-up" data-aos-duration="2000">
                     <div className="perfect-section-header">
-                        <span className="live-pulse-dot"></span>
                         <h2 className="gateway-title">Important <span>Websites</span></h2>
                         <div className="gallery-controls">
                             <button
@@ -1587,8 +1585,11 @@ function Home() {
                                     onClick={(e) => handleExternalLink(e, portal.url)}
                                     aria-label={`Visit ${portal.name} Website (Link opens in new tab)`}
                                 >
-                                    <div className="logo-white-bg">
-                                        <img src={portal.logo} alt={portal.name} draggable="false" />
+                                    <div className="portal-card-inner">
+                                        <div className="logo-white-bg">
+                                            <img src={portal.logo} alt={portal.name} draggable="false" />
+                                        </div>
+                                        <span className="portal-name">{portal.name}</span>
                                     </div>
                                 </a>
                             ))}
