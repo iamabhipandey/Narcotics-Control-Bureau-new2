@@ -221,7 +221,8 @@ function Header() {
                 <div className="header-main-branding">
                     <div className="container branding-container">
                         <div className="branding-left">
-                            <img src="/logo.svg" alt="NCB Logo" className="gov-emblem" />
+                            <img src="/national-emblem.png" alt="NCB Logo" className="gov-emblem" />
+
                             <div className="brand-text-col">
                                 <span className="brand-gov-text">GOVERNMENT OF INDIA</span>
                                 <h1 className="brand-org-name">Narcotics Control Bureau</h1>
@@ -230,6 +231,9 @@ function Header() {
                         </div>
 
                         <div className="branding-middle-logos">
+                            <div className="logo-card">
+                                <img src="/logo.svg" alt="NCB Logo" />
+                            </div>
                             <div className="logo-card">
                                 <img src="/MANAS_Logo.jpeg" alt="MANAS Logo" />
                             </div>

@@ -546,7 +546,6 @@ function Home() {
             name: "Khalid",
             crime: "Drug Trafficking",
             location: "Mumbai, Maharashtra",
-            reward: "₹ 10,00,000",
             status: "High Alert"
         },
         {
@@ -555,7 +554,6 @@ function Home() {
             name: "Zoya Ibrahim",
             crime: "Narcotics Mfg",
             location: "Indore, Madhya Pradesh",
-            reward: "₹ 5,00,000",
             status: "Wanted"
         },
         {
@@ -564,7 +562,6 @@ function Home() {
             name: "Omar",
             crime: "Border Smuggling",
             location: "Amritsar, Punjab",
-            reward: "₹ 7,50,000",
             status: "Fugitive"
         }
     ];
@@ -1112,7 +1109,6 @@ function Home() {
                                                                     <th>NAME</th>
                                                                     <th>OFFENCE</th>
                                                                     <th>LAST KNOWN STATE</th>
-                                                                    <th className="text-center">REWARD</th>
                                                                     <th className="text-center">ACTION</th>
                                                                 </tr>
                                                             </thead>
@@ -1133,7 +1129,6 @@ function Home() {
                                                                         <td className="location-text-v2">
                                                                             <i className="bi bi-geo-alt-fill"></i> {criminal.location}
                                                                         </td>
-                                                                        <td className="text-center reward-text-v2">{criminal.reward}</td>
                                                                         <td className="text-center">
                                                                             <button className="wanted-icon-btn" aria-label={`View details for ${criminal.name}`}>
                                                                                 <i className="bi bi-eye-fill"></i>

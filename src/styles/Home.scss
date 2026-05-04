@@ -333,11 +333,11 @@
 
     @media (max-width: 768px) {
         top: auto;
-        bottom: 30px;
-        right: 20px;
+        bottom: 15px;
+        right: 65px;
         flex-direction: row;
         transform: none;
-        padding: 10px 20px;
+        padding: 6px 15px;
     }
 }
 
@@ -2189,6 +2189,10 @@
             border-right: none;
             border-bottom: 1px solid rgba(0, 0, 0, 0.04);
             padding: 50px 30px;
+        }
+
+        @media (max-width: 767px) {
+            padding: 20px 10px;
         }
 
         .newsletter-content {
@@ -4864,7 +4868,6 @@
     }
 
     .perfect-section-header {
-        justify-content: flex-start;
         text-align: left;
 
         .gateway-title {
